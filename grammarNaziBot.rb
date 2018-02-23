@@ -19,13 +19,13 @@ class GrammarNaziBot < SlackRubyBot::Bot
     end
 
     def self.analyze_word(text)
-        if /(.*[áâéêíóôú]L*)(mente|zinh[ao]s?)/.match(text)
+        if /(.*[áâéêíóôú]*)(mente|zinh[ao]s?)/.match(text)
             text = self.remove_accents(text)
 
             return {'status' => 'ok', 'text' => "*#{text.capitalize} :face_palm: :fire:"}
         end
 
-        {'status' => 'not ok', 'text' => ""}
+        {'status' => 'not ok', 'text' => ""}    
     end
 
     def self.remove_accents(word)
