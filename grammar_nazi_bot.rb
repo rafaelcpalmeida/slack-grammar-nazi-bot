@@ -1,8 +1,8 @@
 require 'slack-ruby-bot'
 
 class GrammarNaziBot < SlackRubyBot::Bot
-    scan(/./) do |client, data, match|
-        message_status = self.analyze_word(data.text.gsub(/(?=:)(.*)(?:)/i, ' '))
+    scan(/./) do |client, data, _|
+        message_status = analyze_word(data.text.gsub(/(?=:)(.*)(?:)/i, ' '))
         unless message_status['status'] != 'ok'
             client.web_client.chat_postMessage(
                 channel: data.channel,
@@ -11,7 +11,7 @@ class GrammarNaziBot < SlackRubyBot::Bot
                 attachments: [
                 {
                     text: message_status['text'],
-                    color: '#FF0000',
+                    color: '#FF0000'
                 }
                 ]
             )
@@ -22,7 +22,7 @@ class GrammarNaziBot < SlackRubyBot::Bot
         changed = false
 
         # sózinho, sómente
-        if /(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i.match(text)
+        if text =~ /(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i
             pieces = text.scan(/(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i).join('')
 
             text = text.sub!(/(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i, remove_accents(pieces))
@@ -31,16 +31,16 @@ class GrammarNaziBot < SlackRubyBot::Bot
         end
 
         # destraído, distoar
-        if /(in)?d([ei])s(.{3,})/i.match(text)
+        if text =~ /(in)?d([ei])s(.{3,})/i
             pieces = text.scan(/(in)?d([ei])s(.{3,})/i)
 
-            text = text.sub!(/(in)?d([ei])s(.{3,})/i, attempt_correction(text, pieces.first.first.to_s + ((pieces.first[1].to_s == 'e') ? 'dis' : 'des') + pieces.last.last.to_s))
+            text = text.sub!(/(in)?d([ei])s(.{3,})/i, attempt_correction(text, pieces.first.first.to_s + (pieces.first[1].to_s == 'e' ? 'dis' : 'des') + pieces.last.last.to_s))
 
             changed = true
         end
 
         # chatisse
-        if /(.+i)ss(es?)/i.match(text)
+        if text =~ /(.+i)ss(es?)/i
             pieces = text.scan(/(.+i)ss(es?)/i)
 
             puts 'Piece'
@@ -51,11 +51,11 @@ class GrammarNaziBot < SlackRubyBot::Bot
             changed = true
         end
 
-        unless changed
-            return {'status' => 'not ok', 'text' => ""}
-        else
+        if changed
             text[0] = text[0].capitalize
-            return {'status' => 'ok', 'text' => "*#{text} :face_palm: :fire:"}
+            return { 'status' => 'ok', 'text' => "*#{text} :face_palm: :fire:" }
+        else
+            return { 'status' => 'not ok', 'text' => '' }
         end
     end
 
@@ -64,15 +64,15 @@ class GrammarNaziBot < SlackRubyBot::Bot
     end
 
     def self.attempt_correction(given_word, proposed_word)
-        if !word_exists(given_word.downcase) and word_exists(proposed_word.downcase)
-            return proposed_word
+        if !word_exists(given_word.downcase) && word_exists(proposed_word.downcase)
+            proposed_word
         end
 
-        return given_word
+        given_word
     end
 
     def self.word_exists(word)
-        return File.readlines("pt.dic").grep(/#{word}/).size > 0
+        !File.readlines('pt.dic').grep(/#{word}/).empty?
     end
 end
 
