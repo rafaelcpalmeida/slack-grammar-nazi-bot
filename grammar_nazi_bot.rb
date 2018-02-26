@@ -21,18 +21,32 @@ class GrammarNaziBot < SlackRubyBot::Bot
     def self.analyze_word(text)
         changed = false
 
+        # sózinho, sómente
         if /(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i.match(text)
             pieces = text.scan(/(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i).join('')
 
-            text = text.sub!(/(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i, self.remove_accents(pieces))
+            text = text.sub!(/(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i, remove_accents(pieces))
 
             changed = true
         end
 
+        # destraído, distoar
         if /(in)?d([ei])s(.{3,})/i.match(text)
             pieces = text.scan(/(in)?d([ei])s(.{3,})/i)
 
-            text = text.sub!(/(in)?d([ei])s(.{3,})/i, self.attempt_correction(text, pieces.first.first.to_s + ((pieces.first[1].to_s == 'e') ? 'dis' : 'des') + pieces.last.last.to_s))
+            text = text.sub!(/(in)?d([ei])s(.{3,})/i, attempt_correction(text, pieces.first.first.to_s + ((pieces.first[1].to_s == 'e') ? 'dis' : 'des') + pieces.last.last.to_s))
+
+            changed = true
+        end
+
+        # chatisse
+        if /(.+i)ss(es?)/i.match(text)
+            pieces = text.scan(/(.+i)ss(es?)/i)
+
+            puts 'Piece'
+            puts pieces.first.first.to_s + 'c' + pieces.last.last.to_s
+
+            text = text.sub!(/(.+i)ss(es?)/i, attempt_correction(text, pieces.first.first.to_s + 'c' + pieces.last.last.to_s))
 
             changed = true
         end
@@ -48,9 +62,9 @@ class GrammarNaziBot < SlackRubyBot::Bot
     def self.remove_accents(word)
         word.tr('áâéêíóôúÁÂÉÊÍÓÔÚ', 'aaeeioouAAEEIOOU')
     end
-    
+
     def self.attempt_correction(given_word, proposed_word)
-        if !self.word_exists(given_word) and self.word_exists(proposed_word)
+        if !word_exists(given_word.downcase) and word_exists(proposed_word.downcase)
             return proposed_word
         end
 
