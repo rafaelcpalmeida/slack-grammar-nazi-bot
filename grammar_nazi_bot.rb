@@ -21,10 +21,10 @@ class GrammarNaziBot < SlackRubyBot::Bot
     def self.analyze_word(text)
         changed = false
 
-        if /(.*[áâéêíóôú]*)(mente|zinh[ao]s?)/i.match(text)
-            pieces = text.scan(/(.*[áâéêíóôú]*)(mente|zinh[ao]s?)/i).join('')
+        if /(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i.match(text)
+            pieces = text.scan(/(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i).join('')
 
-            text = text.sub!(/(.*[áâéêíóôú]*)(mente|zinh[ao]s?)/i, self.remove_accents(pieces))
+            text = text.sub!(/(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i, self.remove_accents(pieces))
 
             changed = true
         end
@@ -40,7 +40,8 @@ class GrammarNaziBot < SlackRubyBot::Bot
         unless changed
             return {'status' => 'not ok', 'text' => ""}
         else
-            return {'status' => 'ok', 'text' => "*#{text.capitalize} :face_palm: :fire:"}
+            text[0] = text[0].capitalize
+            return {'status' => 'ok', 'text' => "*#{text} :face_palm: :fire:"}
         end
     end
 
