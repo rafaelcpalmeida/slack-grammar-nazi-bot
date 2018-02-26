@@ -53,7 +53,7 @@ class GrammarNaziBot < SlackRubyBot::Bot
 
         if changed
             text[0] = text[0].capitalize
-            return { 'status' => 'ok', 'text' => "*#{text} :face_palm: :fire:" }
+            return { 'status' => 'ok', 'text' => "*#{text} :face_palm: :fire: :grammar_nazi:" }
         else
             return { 'status' => 'not ok', 'text' => '' }
         end
