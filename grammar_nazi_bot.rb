@@ -2,7 +2,7 @@ require 'slack-ruby-bot'
 
 class GrammarNaziBot < SlackRubyBot::Bot
     scan(/./) do |client, data, match|
-        message_status = self.analyze_word(data.text.sub!(/(?=:)(.*)(?:)/i, ''))
+        message_status = self.analyze_word(data.text.gsub(/(?=:)(.*)(?:)/i, ' '))
         unless message_status['status'] != 'ok'
             client.web_client.chat_postMessage(
                 channel: data.channel,
