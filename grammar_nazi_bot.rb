@@ -43,10 +43,16 @@ class GrammarNaziBot < SlackRubyBot::Bot
         if text =~ /([[:word:]]+i)ss(es?)/i
             pieces = text.scan(/([[:word:]]+i)ss(es?)/i)
 
-            puts 'Piece'
-            puts pieces.first.first.to_s + 'c' + pieces.last.last.to_s
-
             text = text.sub!(/([[:word:]]+i)ss(es?)/i, attempt_correction(text, pieces.first.first.to_s + 'c' + pieces.last.last.to_s))
+
+            changed = true
+        end
+
+        # saír
+        if text =~ /([[:word:]]*[aeiou])([íú])([zlr])/i
+            pieces = text.scan(/([[:word:]]*[aeiou])([íú])([zlr])/i).join('')
+
+            text = text.sub!(/([[:word:]]*[aeiou])([íú])([zlr])/i, remove_accents(pieces))
 
             changed = true
         end
