@@ -19,17 +19,43 @@ class GrammarNaziBot < SlackRubyBot::Bot
     end
 
     def self.analyze_word(text)
-        if /(.*[áâéêíóôú]*)(mente|zinh[ao]s?)/.match(text)
+        changed = false
+
+        if /(.*[áâéêíóôú]*)(mente|zinh[ao]s?)/i.match(text)
             text = self.remove_accents(text)
 
-            return {'status' => 'ok', 'text' => "*#{text.capitalize} :face_palm: :fire:"}
+            changed = true
         end
 
-        {'status' => 'not ok', 'text' => ""}    
+        if /(in)?d([ei])s(.{3,})/i.match(text)
+            pieces = text.scan(/(in)?d([ei])s(.{3,})/i)
+            puts pieces
+
+            text = self.attempt_correction(text, "distraído")
+
+            changed = true
+        end
+
+        unless changed
+            return {'status' => 'not ok', 'text' => ""}
+        else
+            #return {'status' => 'ok', 'text' => "*#{text.capitalize} :face_palm: :fire:"}
+            return {'status' => 'ok', 'text' => "*#{text} :face_palm: :fire:"}
+        end
     end
 
     def self.remove_accents(word)
         word.tr('áâéêíóôúÁÂÉÊÍÓÔÚ', 'aaeeioouAAEEIOOU')
+    end
+    
+    def self.attempt_correction(given_word, proposed_word)
+        if !self.word_exists(given_word) and self.word_exists(proposed_word)
+            return proposed_word
+        end
+    end
+
+    def self.word_exists(word)
+        return File.readlines("pt.dic").grep(/#{word}/).size > 0
     end
 end
 
