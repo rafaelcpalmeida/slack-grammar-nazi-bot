@@ -22,31 +22,31 @@ class GrammarNaziBot < SlackRubyBot::Bot
         changed = false
 
         # sózinho, sómente
-        if text =~ /(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i
-            pieces = text.scan(/(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i).join('')
+        if text =~ /([[:word:]][áâéêíóôú][[:word:]]*)(mente|zinh[ao]s?)/i
+            pieces = text.scan(/([[:word:]][áâéêíóôú][[:word:]]*)(mente|zinh[ao]s?)/i).join('')
 
-            text = text.sub!(/(.{1}[áâéêíóôú]*)(mente|zinh[ao]s?)/i, remove_accents(pieces))
+            text = text.sub!(/([[:word:]][áâéêíóôú][[:word:]]*)(mente|zinh[ao]s?)/i, remove_accents(pieces))
 
             changed = true
         end
 
         # destraído, distoar
-        if text =~ /(in)?d([ei])s(.{3,})/i
-            pieces = text.scan(/(in)?d([ei])s(.{3,})/i)
+        if text =~ /(in)?d([ei])s([[:word:]]{3,})/i
+            pieces = text.scan(/(in)?d([ei])s([[:word:]]{3,})/i)
 
-            text = text.sub!(/(in)?d([ei])s(.{3,})/i, attempt_correction(text, pieces.first.first.to_s + (pieces.first[1].to_s == 'e' ? 'dis' : 'des') + pieces.last.last.to_s))
+            text = text.sub!(/(in)?d([ei])s([[:word:]]{3,})/i, attempt_correction(text, pieces.first.first.to_s + (pieces.first[1].to_s == 'e' ? 'dis' : 'des') + pieces.last.last.to_s))
 
             changed = true
         end
 
         # chatisse
-        if text =~ /(.+i)ss(es?)/i
-            pieces = text.scan(/(.+i)ss(es?)/i)
+        if text =~ /([[:word:]]+i)ss(es?)/i
+            pieces = text.scan(/([[:word:]]+i)ss(es?)/i)
 
             puts 'Piece'
             puts pieces.first.first.to_s + 'c' + pieces.last.last.to_s
 
-            text = text.sub!(/(.+i)ss(es?)/i, attempt_correction(text, pieces.first.first.to_s + 'c' + pieces.last.last.to_s))
+            text = text.sub!(/([[:word:]]+i)ss(es?)/i, attempt_correction(text, pieces.first.first.to_s + 'c' + pieces.last.last.to_s))
 
             changed = true
         end
@@ -65,7 +65,7 @@ class GrammarNaziBot < SlackRubyBot::Bot
 
     def self.attempt_correction(given_word, proposed_word)
         if !word_exists(given_word.downcase) && word_exists(proposed_word.downcase)
-            proposed_word
+            return proposed_word
         end
 
         given_word
