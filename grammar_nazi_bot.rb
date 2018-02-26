@@ -22,16 +22,17 @@ class GrammarNaziBot < SlackRubyBot::Bot
         changed = false
 
         if /(.*[áâéêíóôú]*)(mente|zinh[ao]s?)/i.match(text)
-            text = self.remove_accents(text)
+            pieces = text.scan(/(.*[áâéêíóôú]*)(mente|zinh[ao]s?)/i).join('')
+
+            text = text.sub!(/(.*[áâéêíóôú]*)(mente|zinh[ao]s?)/i, self.remove_accents(pieces))
 
             changed = true
         end
 
         if /(in)?d([ei])s(.{3,})/i.match(text)
             pieces = text.scan(/(in)?d([ei])s(.{3,})/i)
-            puts pieces
 
-            text = self.attempt_correction(text, "distraído")
+            text = text.sub!(/(in)?d([ei])s(.{3,})/i, self.attempt_correction(text, pieces.first.first.to_s + ((pieces.first[1].to_s == 'e') ? 'dis' : 'des') + pieces.last.last.to_s))
 
             changed = true
         end
@@ -39,8 +40,7 @@ class GrammarNaziBot < SlackRubyBot::Bot
         unless changed
             return {'status' => 'not ok', 'text' => ""}
         else
-            #return {'status' => 'ok', 'text' => "*#{text.capitalize} :face_palm: :fire:"}
-            return {'status' => 'ok', 'text' => "*#{text} :face_palm: :fire:"}
+            return {'status' => 'ok', 'text' => "*#{text.capitalize} :face_palm: :fire:"}
         end
     end
 
@@ -52,6 +52,8 @@ class GrammarNaziBot < SlackRubyBot::Bot
         if !self.word_exists(given_word) and self.word_exists(proposed_word)
             return proposed_word
         end
+
+        return given_word
     end
 
     def self.word_exists(word)
