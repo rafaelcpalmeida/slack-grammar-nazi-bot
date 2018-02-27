@@ -50,9 +50,9 @@ class GrammarNaziBot < SlackRubyBot::Bot
 
         # saír
         if text =~ /([[:word:]]*[aeiou])([íú])([zlr])/i
-            pieces = text.scan(/([[:word:]]*[aeiou])([íú])([zlr])/i).join('')
+            pieces = text.scan(/([[:word:]]*[aeiou])([íú])([zlr])/i)
 
-            text = text.sub!(/([[:word:]]*[aeiou])([íú])([zlr])/i, remove_accents(pieces))
+            text = text.sub!(/([[:word:]]*[aeiou])([íú])([zlr])/i, attempt_correction(text, pieces.first.first.to_s + remove_accents(pieces) + pieces.last.last.to_s))
 
             changed = true
         end
