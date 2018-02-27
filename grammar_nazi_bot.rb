@@ -1,16 +1,10 @@
 require 'slack-ruby-bot'
+require 'redis'
 
 class GrammarNaziBot < SlackRubyBot::Bot
-  require 'set'
 
   def self.run
-    @words = Set.new
-    words = File.open('pt.dic').read
-    words.gsub!(/\r\n?/, "\n")
-
-    words.each_line do |line|
-      @words.add(line)
-    end
+    @redis = Redis.new
 
     super
   end
@@ -104,7 +98,9 @@ class GrammarNaziBot < SlackRubyBot::Bot
   end
 
   def self.word_exists(word)
-    @words.find { |item| /^#{word}$/ =~ item } != nil
+    words = @redis.get word[0]
+
+    words.gsub!(/[\[\]"\s]/, '').split(',').include?(word)
   end
 end
 
