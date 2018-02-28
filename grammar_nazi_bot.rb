@@ -60,9 +60,6 @@ class GrammarNaziBot < SlackRubyBot::Bot
     if text =~ /([[:word:]]*[aeiou])([íú])([zlr])/i
       pieces = text.scan(/([[:word:]]*[aeiou])([íú])([zlr])/i)
 
-      puts 'Pieces'
-      puts pieces.first.first.to_s + remove_accents(pieces.first[1]) + pieces.last.last.to_s
-
       text = text.sub!(/([[:word:]]*[aeiou])([íú])([zlr])/i, attempt_correction(text, pieces.first.first.to_s + remove_accents(pieces.first[1]) + pieces.last.last.to_s))
 
       changed = true
@@ -80,8 +77,6 @@ class GrammarNaziBot < SlackRubyBot::Bot
     if changed
       text[0] = text[0].capitalize
       return { 'status' => 'ok', 'text' => "*#{text} :face_palm: :fire: :grammar_nazi:" }
-    else
-      return { 'status' => 'not ok', 'text' => '' }
     end
   end
 
